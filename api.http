@@ -1,0 +1,190 @@
+@baseUrl = http://localhost:8080
+
+### Health (not implemented, should 404)
+GET {{baseUrl}}/health
+
+
+# =========================
+# Auth / Account
+# Base path: /api
+# =========================
+
+### Register ADMIN
+# Copy the returned `_id` as your `adminUserId` if you need it.
+POST {{baseUrl}}/api/register
+Content-Type: application/json
+
+{
+  "name": "Admin User",
+  "email": "admin@example.com",
+  "password": "secret123",
+  "role": "admin"
+}
+
+### Login ADMIN
+# Copy `token` from response and set it into @adminToken below.
+# Also copy the `Set-Cookie: refreshToken=...` header if you want to test /logout or /refresh.
+POST {{baseUrl}}/api/login
+Content-Type: application/json
+
+{
+  "email": "admin@example.com",
+  "password": "secret123"
+}
+
+@adminToken = REPLACE_WITH_ADMIN_ACCESS_TOKEN
+
+### Who am I (ADMIN)
+GET {{baseUrl}}/api/me
+Authorization: Bearer {{adminToken}}
+
+
+### Register NORMAL USER
+# Copy returned `_id` and put it into @userId.
+POST {{baseUrl}}/api/register
+Content-Type: application/json
+
+{
+  "name": "Normal User",
+  "email": "user@example.com",
+  "password": "secret123",
+  "role": "user"
+}
+
+### Login NORMAL USER
+POST {{baseUrl}}/api/login
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "password": "secret123"
+}
+
+@userToken = REPLACE_WITH_USER_ACCESS_TOKEN
+@userId = REPLACE_WITH_USER_ID
+
+### Who am I (USER)
+GET {{baseUrl}}/api/me
+Authorization: Bearer {{userToken}}
+
+
+# =========================
+# Users (ADMIN only)
+# Base path: /api/users
+# =========================
+
+### Get all users (ADMIN)
+GET {{baseUrl}}/api/users
+Authorization: Bearer {{adminToken}}
+
+### Create user (ADMIN)
+POST {{baseUrl}}/api/users
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "name": "Created By Admin",
+  "email": "created-by-admin@example.com",
+  "password": "secret123",
+  "role": "user"
+}
+
+
+# =========================
+# Categories
+# Base path: /api/category
+# =========================
+
+### Create category (ADMIN)
+# Copy returned Category `_id` into @categoryId.
+POST {{baseUrl}}/api/category
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "name": "Electronics"
+}
+
+@categoryId = REPLACE_WITH_CATEGORY_ID
+
+### Get products by category (public)
+GET {{baseUrl}}/api/category/{{categoryId}}/products
+
+
+# =========================
+# Products
+# Base path: /api/products
+# =========================
+
+### Create product (ADMIN)
+# NOTE: your service expects `categoryID` (capital D)
+# Copy returned Product `_id` into @productId.
+POST {{baseUrl}}/api/products
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "name": "iPhone 15",
+  "price": 999,
+  "inStock": "yes",
+  "categoryID": "{{categoryId}}"
+}
+
+@productId = REPLACE_WITH_PRODUCT_ID
+
+### Get all products (public)
+GET {{baseUrl}}/api/products
+
+### Get product by id (public)
+GET {{baseUrl}}/api/products/{{productId}}
+
+
+# =========================
+# Cart (AUTH required)
+# Base path: /api/carts
+# =========================
+
+### Add to cart (USER)
+POST {{baseUrl}}/api/carts/user/{{userId}}
+Authorization: Bearer {{userToken}}
+Content-Type: application/json
+
+{
+  "productId": "{{productId}}",
+  "quantity": 2
+}
+
+### Get user cart (USER)
+GET {{baseUrl}}/api/carts/user/{{userId}}
+Authorization: Bearer {{userToken}}
+
+### Delete from cart (USER)
+DELETE {{baseUrl}}/api/carts/user/{{userId}}
+Authorization: Bearer {{userToken}}
+Content-Type: application/json
+
+{
+  "productId": "{{productId}}"
+}
+
+
+# =========================
+# Refresh / Logout (cookie required)
+# =========================
+
+### Refresh access token
+# Paste cookie from login response header:
+# Cookie: refreshToken=...;
+POST {{baseUrl}}/api/refresh
+Content-Type: application/json
+Cookie: refreshToken=PASTE_REFRESH_TOKEN_COOKIE_VALUE_HERE
+
+{}
+
+### Logout
+POST {{baseUrl}}/api/logout
+Authorization: Bearer {{userToken}}
+Content-Type: application/json
+Cookie: refreshToken=PASTE_REFRESH_TOKEN_COOKIE_VALUE_HERE
+
+{}
