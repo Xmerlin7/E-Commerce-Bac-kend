@@ -10,13 +10,13 @@ export const createProduct = async (req, res, next) => {
     next(err);
   }
 };
-export const getProducts = async (req, res, next) => {
-  try {
-    let products = await productServices.getAll();
-    res.status(201).json({ message: "Got all Successfully!", data: products });
-  } catch (err) {
-    next(err);
-  }
+export const getProducts = async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+
+  const result = await productServices.getAll(page, limit);
+
+  res.status(200).json(result);
 };
 export const getProductByID = async (req, res, next) => {
   try {
