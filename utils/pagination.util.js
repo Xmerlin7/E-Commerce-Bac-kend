@@ -1,11 +1,29 @@
-const paginate = async (Model, page, limit, filter = {}) => {
+const paginate = async ({
+  model,
+  page = 1,
+  limit = 10,
+  filter = {},
+  populate = null,
+  sort = {}
+}) => {
   const skip = (page - 1) * limit;
-  const total = await Model.countDocuments(filter);
-  const filteredModel = Model.find(filter).skip(skip).limit(limit);
+
+  let query = model.find(filter).sort(sort);
+
+  if (populate) {
+    query = query.populate(populate);
+  }
+
+  const data = await query.skip(skip).limit(limit);
+
+  const total = await model.countDocuments(filter);
 
   return {
+    data,
     total,
-    filteredModel,
+    page,
+    totalPages: Math.ceil(total / limit)
   };
 };
-export default paginate
+
+export default paginate;
