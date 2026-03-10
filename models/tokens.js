@@ -14,6 +14,7 @@ const RefreshTokensSchema = new Schema(
     expiresAt: {
       type: Date,
       required: true,
+      index: { expires: 0 } // MAGIC: Auto-deletes document when this date passes
     },
   },
   {
