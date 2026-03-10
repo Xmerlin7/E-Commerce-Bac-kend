@@ -62,8 +62,6 @@ export const logoutUser = async (req) => {
     process.env.REFRESH_TOKEN_SECRET,
   );
   const { userId } = payload;
-  const currentToken = await RefreshTokenModel.find({ user: userId });
-
 
   await RefreshTokenModel.findOneAndDelete({ user: userId });
 };
@@ -77,10 +75,12 @@ export const refreshUser = async (req) => {
     process.env.REFRESH_TOKEN_SECRET,
   );
   const { userId } = payload;
-  let currentToken = RefreshTokenModel.findById({ user: userId });
-  let isValid = bcrypt.compare(currentToken, cookieRefreshToken);
+  let storedRecord = await RefreshTokenModel.findOne({ user: userId });
+  if (!storedRecord) throw new ApiError("Session expired or logged out", 401);
+
+  let isValid = await bcrypt.compare(cookieRefreshToken, storedRecord.token);
   if (!isValid)
-    return new ApiError("U Are Only Allowed To login from one Device");
+    throw new ApiError("U Are Only Allowed To login from one Device", 401);
 
   const newAccessToken = jwt.sign(
     {
