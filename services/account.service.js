@@ -44,12 +44,14 @@ export const loginUser = async (data) => {
   );
   let hashedToken = await bcrypt.hash(refreshToken, 10);
   hashedToken = hashedToken.toString();
-  await RefreshTokenModel.create({
-    user: foundUser._id,
-    token: hashedToken,
-    expiresAt: Date.now() + 7 * 24 * 60 * 60 * 1000,
-  });
-
+  await RefreshTokenModel.findOneAndUpdate(
+  { user: foundUser._id },        // 1. "Find" criteria
+  {                               // 2. "Update" data
+    token: hashedRefreshToken, 
+    expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) 
+  },
+  { upsert: true, new: true }     // 3. Options
+);
   return { refreshToken, accessToken, foundUserName: foundUser.name };
 };
 export const logoutUser = async (req) => {
