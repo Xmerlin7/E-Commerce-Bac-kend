@@ -26,6 +26,18 @@ export const loginUser = async (data) => {
   const isValid = await bcrypt.compare(password, foundUser.password);
 
   if (!isValid) throw new ApiError("Invalid email or password", 400);
+
+  const existingSession = await RefreshTokenModel.findOne({ user: foundUser._id });
+  if (existingSession?.expiresAt && existingSession.expiresAt > new Date()) {
+    throw new ApiError(
+      "You are already logged in. Please logout first.",
+      409,
+    );
+  }
+  if (existingSession) {
+    await RefreshTokenModel.deleteOne({ _id: existingSession._id });
+  }
+
   const accessToken = jwt.sign(
     { userId: foundUser._id, role: foundUser.role },
     process.env.ACCESS_TOKEN_SECRET,
@@ -34,6 +46,7 @@ export const loginUser = async (data) => {
   const refreshToken = jwt.sign(
     {
       userId: foundUser._id,
+      role: foundUser.role,
     },
     process.env.REFRESH_TOKEN_SECRET,
     {
