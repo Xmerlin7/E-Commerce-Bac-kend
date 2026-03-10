@@ -62,17 +62,12 @@ export const logoutUser = async (req) => {
     process.env.REFRESH_TOKEN_SECRET,
   );
   const { userId } = payload;
-  const allUserRefTokens = await RefreshTokenModel.find({ user: userId });
+  const currentToken = await RefreshTokenModel.find({ user: userId });
 
-  const comparedBooleanTokens = await Promise.all(
-    allUserRefTokens.map((t) => bcrypt.compare(cookieRefreshToken, t.token)),
-  );
-  const currentTokenIndex = comparedBooleanTokens.findIndex((t) => t == true);
-  if (currentTokenIndex === -1)
-    return new ApiError("Refresh token not found", 401);
 
-  await Tokens.findByIdAndDelete(allUserRefTokens[currentTokenIndex]._id);
+  await RefreshTokenModel.findOneAndDelete({ user: userId });
 };
+
 export const refreshUser = async (req) => {
   const cookieRefreshToken = req.cookies.refreshToken;
   if (!cookieRefreshToken) throw new ApiError("Refresh Token Required!", 400);
