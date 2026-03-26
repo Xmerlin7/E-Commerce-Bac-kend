@@ -1,5 +1,5 @@
 import bcrypt from "bcryptjs";
-import user from "../models/user.js";
+import User from "../models/user.js";
 
 export const create = async (data) => {
 
@@ -10,13 +10,13 @@ export const create = async (data) => {
       password: hashedPassword,
       role: data.role,
     };
-    let userCreated = await user.create(userDTO);
+    let userCreated = await User.create(userDTO);
     return userCreated;
 
 };
 export const getAll = async () => {
 
-    let users = await user.find();
+    let users = await User.find();
     return users;
 
 };

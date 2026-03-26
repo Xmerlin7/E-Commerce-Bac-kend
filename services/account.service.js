@@ -24,23 +24,23 @@ export const loginUser = async (data) => {
   const foundUser = await User.findOne({ email });
 
   if (!foundUser) throw new ApiError("Invalid email or password", 400);
-
+  //No Timing Attacks as compare sends data in constant time
   const isValid = await bcrypt.compare(password, foundUser.password);
 
   if (!isValid) throw new ApiError("Invalid email or password", 400);
-  const accessToken = await jwt.sign(
+  const accessToken = jwt.sign(
     { userId: foundUser._id, role: foundUser.role },
     process.env.ACCESS_TOKEN_SECRET,
-    { expiresIn: "15m" },
+    { expiresIn: "15m" }
   );
-  const refreshToken = await jwt.sign(
+  const refreshToken = jwt.sign(
     {
       userId: foundUser._id,
     },
     process.env.REFRESH_TOKEN_SECRET,
     {
       expiresIn: "7d",
-    },
+    }
   );
   let hashedToken = await bcrypt.hash(refreshToken, 10);
   hashedToken = hashedToken.toString();
