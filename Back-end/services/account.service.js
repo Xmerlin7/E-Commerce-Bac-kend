@@ -5,6 +5,7 @@ import { create } from "./user.service.js";
 import ApiError from "../utils/ApiError.js";
 import RefreshTokenModel from "../models/tokens.js";
 
+// ========== GET CURRENT USER ==========
 export const getCurrentUser = async (req) => {
   const currentUserId = req.user.userId;
   const currentUser = await User.findById(currentUserId);
@@ -12,10 +13,13 @@ export const getCurrentUser = async (req) => {
   return currentUser;
 };
 
+//! ========== REGISTER USER ==========
 export const registerUser = async (data) => {
   const newUser = await create(data);
   return newUser;
 };
+
+//! ========== LOGIN USER ==========
 export const loginUser = async (data) => {
   const { email, password } = data;
 
@@ -27,12 +31,11 @@ export const loginUser = async (data) => {
 
   if (!isValid) throw new ApiError("Invalid email or password", 400);
 
-  const existingSession = await RefreshTokenModel.findOne({ user: foundUser._id });
+  const existingSession = await RefreshTokenModel.findOne({
+    user: foundUser._id,
+  });
   if (existingSession?.expiresAt && existingSession.expiresAt > new Date()) {
-    throw new ApiError(
-      "You are already logged in. Please logout first.",
-      409,
-    );
+    throw new ApiError("You are already logged in. Please logout first.", 409);
   }
   if (existingSession) {
     await RefreshTokenModel.deleteOne({ _id: existingSession._id });
@@ -66,6 +69,8 @@ export const loginUser = async (data) => {
   );
   return { refreshToken, accessToken, foundUserName: foundUser.name };
 };
+
+//! ========== LOGOUT USER ==========
 export const logoutUser = async (req) => {
   const cookieRefreshToken = req.cookies.refreshToken;
   if (!cookieRefreshToken) throw new ApiError("Refresh Token Required!", 400);
@@ -79,6 +84,7 @@ export const logoutUser = async (req) => {
   await RefreshTokenModel.findOneAndDelete({ user: userId });
 };
 
+//! ========== REFRESH TOKEN ==========
 export const refreshUser = async (req) => {
   const cookieRefreshToken = req.cookies.refreshToken;
   if (!cookieRefreshToken) throw new ApiError("Refresh Token Required!", 400);
