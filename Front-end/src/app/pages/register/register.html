@@ -1,0 +1,52 @@
+<div class="hero hero-content min-h-screen">
+  <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-4">
+    <label class="label"><span class="label-text">Name</span></label>
+    <input formControlName="name" type="text" placeholder="User Name" class="input input-accent" />
+    <label class="label"><span class="label-text">Email</span></label>
+    <input
+      formControlName="email"
+      type="email"
+      placeholder="user@dev.com"
+      class="input input-accent"
+    />
+    <label class="label"><span class="label-text">Password</span></label>
+    <input
+      formControlName="password"
+      type="password"
+      placeholder="Password"
+      class="input input-accent"
+    />
+    <label class="label"><span class="label-text">Confirm Password</span></label>
+    <input
+      formControlName="confirmPassword"
+      type="password"
+      placeholder="Password"
+      class="input input-accent"
+    />
+    @if (
+      registerForm.hasError('passwordMismatch') && registerForm.get('confirmPassword')?.touched
+    ) {
+      <p class="badge badge-error">Password not matched</p>
+    }
+    @if (errorMessage) {
+      <div class="alert alert-warning shadow-lg">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="stroke-current shrink-0 h-6 w-6"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+          />
+        </svg>
+        <span>{{ errorMessage }}</span>
+      </div>
+    }
+
+    <button type="submit" [disabled]="registerForm.invalid" class="btn btn-accent">Register</button>
+  </form>
+</div>
