@@ -56,7 +56,7 @@ export const refresh = async (req, res, next) => {
     const accessToken = await refreshUser(req);
     res.status(200).json({
       message: `U refreshed successfully!`,
-      data: accessToken,
+      accessToken,
     });
   } catch (error) {
     next(error);
