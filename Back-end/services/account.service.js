@@ -67,7 +67,16 @@ export const loginUser = async (data) => {
     },
     { upsert: true, new: true }, // 3. Options
   );
-  return { refreshToken, accessToken, foundUserName: foundUser.name };
+  return {
+    refreshToken,
+    accessToken,
+    user: {
+      _id: foundUser._id,
+      name: foundUser.name,
+      email: foundUser.email,
+      role: foundUser.role,
+    },
+  };
 };
 
 //! ========== LOGOUT USER ==========
