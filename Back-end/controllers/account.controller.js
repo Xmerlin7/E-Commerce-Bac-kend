@@ -16,9 +16,7 @@ export const register = async (req, res, next) => {
 };
 export const login = async (req, res, next) => {
   try {
-    const { refreshToken, accessToken, foundUserName } = await loginUser(
-      req.body,
-    );
+    const { refreshToken, accessToken, user } = await loginUser(req.body);
     res
       .status(200)
       .cookie("refreshToken", refreshToken, {
@@ -27,9 +25,9 @@ export const login = async (req, res, next) => {
         maxAge: 7 * 24 * 60 * 60 * 1000,
       })
       .json({
-        message: `Hi ${foundUserName} U loggedIn successfully!`,
+        message: `Hi ${user.name} U loggedIn successfully!`,
         token: accessToken,
-        user: { name: foundUserName, email: req.body.email }
+        user,
       });
   } catch (error) {
     next(error);
