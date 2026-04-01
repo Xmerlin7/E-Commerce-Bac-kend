@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environment/environment';
 import { AuthResponse, User } from '../../models/users.model';
 import { RefreshResponse } from '../../models/refreshResponse.model';
-import { tap, throwError } from 'rxjs';
+import { tap } from 'rxjs';
 import { login, register } from '../../models/users.model';
 @Injectable({
   providedIn: 'root',
@@ -22,6 +22,19 @@ export class AuthService {
 
   getToken(): string | null {
     return localStorage.getItem(this.TOKEN_KEY);
+  }
+
+  getRoleFromToken(): User['role'] | null {
+    const token = this.getToken();
+    if (!token) return null;
+
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const role = payload?.role;
+      return role === 'admin' || role === 'user' ? role : null;
+    } catch {
+      return null;
+    }
   }
 
   clearToken(): void {
