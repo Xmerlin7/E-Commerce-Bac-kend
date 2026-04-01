@@ -11,6 +11,10 @@ export default async (req, res, next) => {
     req.user = payload;
     next();
   } catch (error) {
-    next(error);
+    if (error.name === "TokenExpiredError") {
+      return next(new ApiError("jwt expired", 401));
+    }
+
+    return next(new ApiError("Invalid token", 401));
   }
 };
