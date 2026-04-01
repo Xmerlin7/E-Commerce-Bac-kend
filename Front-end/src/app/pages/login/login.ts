@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, signal } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { AuthService } from '../../core/services/auth';
 import { Router } from '@angular/router';
@@ -11,24 +11,35 @@ import { Router } from '@angular/router';
 export class LoginComponent {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
-  private router = inject(Router)
+  private router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
+
+  conflictMessage = signal<string | null>(null);
   loginForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]],
   });
 
-  onSubmit() {
+  onSubmit(forceLogin = false) {
     const credentials = this.loginForm.getRawValue();
 
-    this.authService.login(credentials).subscribe({
-      next: (res) => {
-        console.log('Success Response:', res);
-        this.router.navigate(['/home'])
-        alert('دخلت بنجاح يا سيف! بص على الـ Console');
+    this.conflictMessage.set(null);
+    this.cdr.detectChanges();
+
+    this.authService.login({ ...credentials, forceLogin }).subscribe({
+      next: () => {
+        this.router.navigate(['/home']);
       },
       error: (err) => {
+        if (err.status === 409) {
+          this.conflictMessage.set(
+            err?.error?.message || 'You are already logged in on another device.',
+          );
+          this.cdr.detectChanges();
+          return;
+        }
+
         console.error('Login Failed:', err);
-        alert('فشل الدخول، بص على الـ Console للأحداث الحمراء');
       },
     });
   }
