@@ -1,0 +1,38 @@
+<div class="p-6">
+  <div class="flex justify-between items-center mb-6">
+    <h2 class="text-2xl font-bold">Users Management</h2>
+    <button routerLink="/admin/users/add/" class="btn btn-primary">Add New User</button>
+  </div>
+  <div class="overflow-x-auto bg-base-100 rounded-box shadow">
+    <table class="table w-full">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Role</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (user of users(); track user._id) {
+          <tr>
+            <td>{{ user.name }}</td>
+            <td>{{ user.email }}</td>
+            <td>
+              <span
+                class="badge"
+                [ngClass]="user.role === 'admin' ? 'badge-secondary' : 'badge-primary'"
+              >
+                {{ user.role }}
+              </span>
+            </td>
+            <td class="flex gap-2">
+              <button class="btn btn-sm btn-info">Edit</button>
+              <!-- <button (click)="removeUser(user.id)" class="btn btn-sm btn-error">Delete</button> -->
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
