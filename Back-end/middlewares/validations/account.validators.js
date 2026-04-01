@@ -35,6 +35,7 @@ export const loginValidator = [
     .withMessage("password is required")
     .isString()
     .withMessage("password must be a string"),
+  body("forceLogin").optional().isBoolean().toBoolean(),
 ];
 
 export const refreshValidator = [

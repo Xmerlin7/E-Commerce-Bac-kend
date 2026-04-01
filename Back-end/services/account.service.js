@@ -21,7 +21,7 @@ export const registerUser = async (data) => {
 
 //! ========== LOGIN USER ==========
 export const loginUser = async (data) => {
-  const { email, password } = data;
+  const { email, password, forceLogin = false } = data;
 
   const foundUser = await User.findOne({ email });
 
@@ -35,7 +35,14 @@ export const loginUser = async (data) => {
     user: foundUser._id,
   });
   if (existingSession?.expiresAt && existingSession.expiresAt > new Date()) {
-    throw new ApiError("You are already logged in. Please logout first.", 409);
+    if (forceLogin) {
+      await RefreshTokenModel.deleteOne({ _id: existingSession._id });
+    } else {
+      throw new ApiError(
+        "You are already logged in. Please logout first.",
+        409,
+      );
+    }
   }
   if (existingSession) {
     await RefreshTokenModel.deleteOne({ _id: existingSession._id });
