@@ -5,6 +5,9 @@ import { Register } from './pages/register/register';
 import { AdminLayoutComponent } from './pages/admin/admin-layout/admin-layout';
 import { Dashboard } from './pages/admin/dashboard/dashboard';
 import { roleGuard } from './core/guards/role-guard';
+import { UserComponent } from './pages/admin/users/userList/users';
+import { AddUserFormComponent } from './pages/admin/users/add-user/add-user';
+import { ProductsList } from './pages/admin/products-list/products-list';
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
 
@@ -19,7 +22,9 @@ export const routes: Routes = [
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: Dashboard },
-      // { path: 'products-management', component: ProductsManagementComponent },
+      { path: 'users', component: UserComponent },
+      { path: 'users/add', component: AddUserFormComponent },
+      { path: 'products', component: ProductsList },
     ],
   },
   { path: '**', redirectTo: 'home' },
