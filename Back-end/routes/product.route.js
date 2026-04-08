@@ -2,6 +2,8 @@ import {
   createProduct,
   getProductByID,
   getProducts,
+  updatedProduct,
+  removeProduct,
 } from "../controllers/product.controller.js";
 import { Router } from "express";
 import authenticate from "../middlewares/auth/authenticate.middleware.js";
@@ -24,4 +26,19 @@ router.post(
 );
 router.get("/", getProducts);
 router.get("/:id", productIdParamValidator, validate, getProductByID);
+router.put(
+  "/:id",
+  productIdParamValidator,
+  validate,
+  authorize("admin"),
+  updatedProduct,
+);
+router.delete(
+  "/:id",
+  productIdParamValidator,
+  validate,
+  authorize("admin"),
+  removeProduct,
+);
+
 export default router;

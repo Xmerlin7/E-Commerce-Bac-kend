@@ -7,7 +7,7 @@ import { Dashboard } from './pages/admin/dashboard/dashboard';
 import { roleGuard } from './core/guards/role-guard';
 import { UserComponent } from './pages/admin/users/userList/users';
 import { AddUserFormComponent } from './pages/admin/users/add-user/add-user';
-import { ProductsList } from './pages/admin/products-list/products-list';
+import { ProductsList } from './pages/admin/products/products-list/products-list';
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
 
@@ -24,6 +24,7 @@ export const routes: Routes = [
       { path: 'dashboard', component: Dashboard },
       { path: 'users', component: UserComponent },
       { path: 'users/add', component: AddUserFormComponent },
+      { path: 'users/edit/:id', component: AddUserFormComponent },
       { path: 'products', component: ProductsList },
     ],
   },
