@@ -26,3 +26,24 @@ export const getProductByID = async (req, res, next) => {
     next(err);
   }
 };
+export const updatedProduct = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const newProduct = req.body;
+    let updatedProduct = await productServices.update(id, newProduct);
+    res
+      .status(200)
+      .json({ message: "Updated successfully !", data: updatedProduct });
+  } catch (err) {
+    next(err);
+  }
+};
+export const removeProduct = async (req, res, next) =>{
+  try{
+    const id = req.params.id;
+    await productServices.remove(id);
+    res.status(204)
+  }catch(err){
+    next(err)
+  }
+}
