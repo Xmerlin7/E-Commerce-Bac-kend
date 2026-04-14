@@ -2,6 +2,7 @@ import express from "express";
 import morgan from "morgan";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import path from "path";
 import categoryRouter from "./routes/category.route.js";
 import productRouter from "./routes/product.route.js";
 import userRouter from "./routes/user.route.js";
@@ -23,6 +24,7 @@ app.use(
 );
 app.use(express.json());
 app.use(cookieParser());
+app.use("/uploads", express.static(path.resolve("uploads")));
 
 app.use("/api", accRouter);
 app.use("/api/users", userRouter);
