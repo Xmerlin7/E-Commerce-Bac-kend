@@ -48,3 +48,20 @@ export const deleteFromCart = async (req, res, next) => {
     next(err);
   }
 };
+
+export const updateCartQuantity = async (req, res, next) => {
+  try {
+    assertCartAccess(req, req.params.userId);
+    const { productId, quantity } = req.body;
+    const cart = await cartServices.setQuantity(
+      req.params.userId,
+      productId,
+      quantity,
+    );
+    return res
+      .status(200)
+      .json({ Message: "Updated Successfully!", data: cart });
+  } catch (err) {
+    next(err);
+  }
+};

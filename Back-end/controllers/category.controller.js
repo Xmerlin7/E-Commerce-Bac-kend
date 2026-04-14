@@ -7,12 +7,24 @@ export const createCategory = async (req, res, next) => {
       .status(201)
       .json({
         message: "Category Created Successfully!",
-        data: { id: categoryID, name: req.body },
+        data: { id: categoryID, name: req.body.name },
       });
   } catch (err) {
     next(err);
   }
 };
+
+export const getCategories = async (req, res, next) => {
+  try {
+    const categories = await categoryServices.getAll();
+    return res
+      .status(200)
+      .json({ message: "Retrieved Successfully", data: categories });
+  } catch (err) {
+    next(err);
+  }
+};
+
 export const getProductsByCategory = async (req, res, next) => {
   try {
     const filteredProducts = await categoryServices.getByCategory(

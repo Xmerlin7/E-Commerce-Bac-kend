@@ -2,10 +2,16 @@ import * as productServices from "../services/product.service.js";
 
 export const createProduct = async (req, res, next) => {
   try {
-    await productServices.create(req.body);
+    const image =
+      req.file
+        ? `${req.protocol}://${req.get("host")}/uploads/products/${req.file.filename}`
+        : req.body.image;
+    const payload = { ...req.body, image };
+
+    await productServices.create(payload);
     res
       .status(201)
-      .json({ message: "Category Created Successfully!", data: req.body });
+      .json({ message: "Product Created Successfully!", data: payload });
   } catch (err) {
     next(err);
   }
@@ -38,12 +44,12 @@ export const updatedProduct = async (req, res, next) => {
     next(err);
   }
 };
-export const removeProduct = async (req, res, next) =>{
-  try{
+export const removeProduct = async (req, res, next) => {
+  try {
     const id = req.params.id;
     await productServices.remove(id);
-    res.status(204)
-  }catch(err){
-    next(err)
+    return res.status(204).send();
+  } catch (err) {
+    next(err);
   }
-}
+};
