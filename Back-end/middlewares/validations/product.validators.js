@@ -35,6 +35,6 @@ export const createProductValidator = [
 
   body("image")
     .optional()
-    .isURL()
-    .withMessage("image must be a valid URL"),
+    .isString()
+    .withMessage("image must be a string"),
 ];
