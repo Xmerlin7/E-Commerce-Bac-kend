@@ -1,11 +1,18 @@
 import productModel from "../models/product.js";
 import paginate from "../utils/pagination.util.js";
+import ApiError from "../utils/ApiError.js";
+
 export const create = async (data) => {
+  const title = data.title ?? data.name;
+  const category = data.category ?? data.categoryID;
+
   await productModel.create({
-    name: data.name,
+    title,
+    description: data.description,
+    image: data.image,
     price: data.price,
     inStock: data.inStock,
-    category: data.categoryID,
+    category,
   });
 };
 export const getAll = async (page, limit) => {
@@ -25,19 +32,17 @@ export const update = async (id, data) => {
 
   if (!updatedData.category) delete updatedData.category;
 
-  const updatedProduct = await productModel.findByIdAndUpdate(
-    id, 
-    updatedData, 
-    { new: true, runValidators: true }
-  ).populate("category");
+  const updatedProduct = await productModel
+    .findByIdAndUpdate(id, updatedData, { new: true, runValidators: true })
+    .populate("category");
 
   if (!updatedProduct) throw new ApiError("Product not found", 404);
-  
+
   return updatedProduct;
 };
 
-export const remove = async (id) =>{
+export const remove = async (id) => {
   const deletedProduct = await productModel.findByIdAndDelete(id);
-  if (!deletedProduct) throw new ApiError("User not found", 404);
+  if (!deletedProduct) throw new ApiError("Product not found", 404);
   return deletedProduct;
-}
+};

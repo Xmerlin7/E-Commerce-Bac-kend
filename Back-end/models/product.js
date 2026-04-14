@@ -2,12 +2,19 @@ import { Schema, model } from "mongoose";
 
 const productSchema = new Schema(
   {
-    name: {
+    title: {
       type: String,
       required: [true, "Product name is required"],
-      unique: true,
     },
-
+    description: {
+      type: String,
+      required: [true, "Product description is required"],
+    },
+    image: {
+      type: String,
+      default:
+        "https://cdn.dummyjson.com/product-images/beauty/essence-mascara-lash-princess/1.webp",
+    },
     price: {
       type: Number,
       required: [true, "Price is required"],

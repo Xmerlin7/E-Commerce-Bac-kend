@@ -5,26 +5,36 @@ export const productIdParamValidator = [
 ];
 
 export const createProductValidator = [
-  body("name")
-    .exists({ checkFalsy: true })
-    .withMessage("name is required")
+  body("title")
+    .notEmpty()
+    .withMessage("title is required")
     .isString()
-    .withMessage("name must be a string")
-    .trim()
-    .isLength({ min: 1 })
-    .withMessage("name cannot be empty"),
+    .trim(),
+
+  body("description")
+    .notEmpty()
+    .withMessage("description is required")
+    .isString()
+    .trim(),
+
   body("price")
-    .exists()
+    .notEmpty()
     .withMessage("price is required")
     .isFloat({ min: 0 })
     .withMessage("price must be a number >= 0"),
+
+  body("category")
+    .notEmpty()
+    .withMessage("category is required")
+    .isMongoId()
+    .withMessage("category must be a valid MongoId"),
+
   body("inStock")
     .optional()
-    .isIn(["yes", "no"])
-    .withMessage("inStock must be one of: yes, no"),
-  body("categoryID")
-    .exists({ checkFalsy: true })
-    .withMessage("categoryID is required")
-    .isMongoId()
-    .withMessage("categoryID must be a valid MongoId"),
+    .isIn(["yes", "no"]),
+
+  body("image")
+    .optional()
+    .isURL()
+    .withMessage("image must be a valid URL"),
 ];
