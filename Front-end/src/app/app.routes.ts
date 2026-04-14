@@ -8,12 +8,15 @@ import { roleGuard } from './core/guards/role-guard';
 import { UserComponent } from './pages/admin/users/userList/users';
 import { AddUserFormComponent } from './pages/admin/users/add-user/add-user';
 import { ProductsList } from './pages/admin/products/products-list/products-list';
+import { EditProduct } from './pages/admin/products/edit-product/edit-product';
+import { AddProduct } from './pages/admin/products/add-product/add-product';
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
 
   { path: 'home', component: Home },
   { path: 'register', component: Register },
   { path: 'login', component: LoginComponent },
+  { path: 'products', component: ProductsList },
   {
     path: 'admin',
     component: AdminLayoutComponent,
@@ -22,10 +25,19 @@ export const routes: Routes = [
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: Dashboard },
+
       { path: 'users', component: UserComponent },
       { path: 'users/add', component: AddUserFormComponent },
       { path: 'users/edit/:id', component: AddUserFormComponent },
-      { path: 'products', component: ProductsList },
+
+      {
+        path: 'products',
+        children: [
+          { path: '', component: ProductsList },      // يفتح عند /admin/products
+          { path: 'add', component: AddProduct },     // يفتح عند /admin/products/add
+          { path: 'edit/:id', component: EditProduct } // يفتح عند /admin/products/edit/123
+        ]
+      },
     ],
   },
   { path: '**', redirectTo: 'home' },

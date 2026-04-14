@@ -25,9 +25,21 @@ export interface UsersResponse {
   data: User[];
 }
 
+export interface UserResponse {
+  message: string;
+  data: User;
+}
+
 export interface CreateUserPayload {
   name: string;
   email: string;
   password: string;
   role: 'admin' | 'user';
+}
+
+export interface UpdateUserPayload {
+  name: string;
+  email: string;
+  role: 'admin' | 'user';
+  password?: string;
 }

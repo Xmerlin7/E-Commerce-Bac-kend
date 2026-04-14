@@ -27,8 +27,10 @@
               </span>
             </td>
             <td class="flex gap-2">
-              <button class="btn btn-sm btn-info">Edit</button>
-              <!-- <button (click)="removeUser(user.id)" class="btn btn-sm btn-error">Delete</button> -->
+              <button [routerLink]="['/admin/users/edit', user._id]" class="btn btn-sm btn-info">
+                Edit
+              </button>
+              <button (click)="removeUser(user._id)" class="btn btn-sm btn-error">Delete</button>
             </td>
           </tr>
         }

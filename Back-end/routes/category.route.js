@@ -15,8 +15,7 @@ const router = Router();
 
 router.post(
   "/",
-  authenticate,
-  authorize("admin"),
+
   createCategoryValidator,
   validate,
   createCategory,
