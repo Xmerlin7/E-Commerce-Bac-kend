@@ -1,5 +1,107 @@
 /* You can add global styles to this file, and also import other style files */
 
-@import "tailwindcss";
+@import 'tailwindcss';
 @plugin "daisyui";
 
+:root {
+  --app-page-bg: #15202b;
+	--brand-yellow: #e7b93f;
+	--brand-yellow-hover: #d9ab33;
+	--brand-yellow-text: #f3d37b;
+	--brand-yellow-border: rgba(231, 185, 63, 0.3);
+	--brand-yellow-soft: rgba(231, 185, 63, 0.12);
+	--brand-yellow-shadow: rgba(231, 185, 63, 0.22);
+}
+
+html,
+body {
+  min-height: 100%;
+  background-color: var(--app-page-bg);
+}
+
+.app-page-bg {
+  background-color: var(--app-page-bg);
+}
+
+/* Softer yellow palette applied globally to existing utility usage */
+.bg-yellow-400 {
+	background-color: var(--brand-yellow) !important;
+}
+
+.hover\:bg-yellow-500:hover {
+	background-color: var(--brand-yellow-hover) !important;
+}
+
+.hover\:bg-yellow-400:hover {
+	background-color: var(--brand-yellow) !important;
+}
+
+.text-yellow-400,
+.text-yellow-300 {
+	color: var(--brand-yellow-text) !important;
+}
+
+.border-yellow-400,
+.border-yellow-500 {
+	border-color: var(--brand-yellow-border) !important;
+}
+
+.bg-yellow-400\/10 {
+	background-color: var(--brand-yellow-soft) !important;
+}
+
+.border-yellow-400\/20,
+.border-yellow-500\/20 {
+	border-color: var(--brand-yellow-border) !important;
+}
+
+.shadow-yellow-400\/10,
+.shadow-yellow-400\/20 {
+	--tw-shadow-color: var(--brand-yellow-shadow) !important;
+}
+
+/* Shared button system (Invincible-inspired amber) */
+.app-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 0.85rem;
+	padding: 0.72rem 1.4rem;
+	font-size: 0.78rem;
+	font-weight: 900;
+	text-transform: uppercase;
+	letter-spacing: 0.02em;
+	border: 1px solid transparent;
+	transition: all 0.2s ease;
+}
+
+.app-btn-primary {
+	background: var(--brand-yellow);
+	color: #111827;
+	box-shadow: 0 10px 24px -12px var(--brand-yellow-shadow);
+}
+
+.app-btn-primary:hover {
+	background: var(--brand-yellow-hover);
+}
+
+.app-btn-secondary {
+	background: var(--brand-yellow-soft);
+	color: var(--brand-yellow-text);
+	border-color: var(--brand-yellow-border);
+}
+
+.app-btn-secondary:hover {
+	background: var(--brand-yellow);
+	color: #111827;
+}
+
+.app-btn-neutral {
+	background: rgba(255, 255, 255, 0.04);
+	color: #f3f4f6;
+	border-color: rgba(255, 255, 255, 0.12);
+}
+
+.app-btn-neutral:hover {
+	background: rgba(255, 255, 255, 0.1);
+}

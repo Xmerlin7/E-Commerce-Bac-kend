@@ -1,1 +1,145 @@
-<p>home works!</p>
+<div class="p-8 app-page-bg min-h-screen font-sans text-white">
+  <section class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center mb-10 border-b border-yellow-500/20 pb-10">
+    <div>
+      <div class="flex items-center gap-4 mb-5">
+        <div class="w-2 h-10 bg-yellow-400 rounded-full shadow-[0_0_15px_rgba(250,204,21,0.5)]"></div>
+        <h1 class="text-4xl md:text-5xl font-black tracking-tight">
+          Welcome to <span class="text-yellow-400">ShopWave</span>
+        </h1>
+      </div>
+      <p class="text-neutral-300 leading-relaxed mb-6 max-w-xl">
+        Discover top products, manage your cart in seconds, and enjoy a smooth shopping flow in one
+        place.
+      </p>
+      <div class="flex flex-wrap gap-3">
+        <a
+          routerLink="/products"
+          class="app-btn app-btn-primary"
+        >
+          Shop Now
+        </a>
+        @if (isAuthenticated()) {
+          <a
+            routerLink="/cart"
+            class="app-btn app-btn-secondary"
+          >
+            View Cart
+          </a>
+        } @else {
+          <a
+            routerLink="/login"
+            class="app-btn app-btn-secondary"
+          >
+            Login
+          </a>
+        }
+        @if (isAdmin()) {
+          <a
+            routerLink="/admin/dashboard"
+            class="app-btn app-btn-neutral"
+          >
+            Admin Dashboard
+          </a>
+        }
+      </div>
+    </div>
+
+    <div class="bg-[#1c2a37] rounded-3xl p-6 border border-white/5 shadow-2xl">
+      <h2 class="text-xl font-black mb-4">Why ShopWave?</h2>
+      <div class="space-y-3">
+        <div class="p-3 rounded-xl bg-white/5 border border-white/10">
+          <p class="font-bold text-yellow-400">Fast Shopping Flow</p>
+          <p class="text-sm text-neutral-300">Browse, add, and checkout with minimal friction.</p>
+        </div>
+        <div class="p-3 rounded-xl bg-white/5 border border-white/10">
+          <p class="font-bold text-yellow-400">Clean Product Management</p>
+          <p class="text-sm text-neutral-300">Admins can manage products and categories in one place.</p>
+        </div>
+        <div class="p-3 rounded-xl bg-white/5 border border-white/10">
+          <p class="font-bold text-yellow-400">Consistent Experience</p>
+          <p class="text-sm text-neutral-300">Unified UI across storefront, cart, and admin pages.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  @if (errorMessage()) {
+    <div class="mb-6 p-4 rounded-2xl border border-red-500/20 bg-red-500/10 text-red-200 font-bold">
+      {{ errorMessage() }}
+    </div>
+  }
+
+  <section class="mb-10">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-2xl font-black">Top Categories</h2>
+      <a
+        routerLink="/products"
+        class="app-btn app-btn-neutral !px-3 !py-2 !text-[11px]"
+      >
+        Browse Products
+      </a>
+    </div>
+
+    @if (loading()) {
+      <div class="flex flex-wrap gap-2">
+        @for (_ of [1, 2, 3, 4, 5, 6]; track $index) {
+          <div class="h-9 w-28 rounded-lg bg-white/10 animate-pulse"></div>
+        }
+      </div>
+    } @else {
+      <div class="flex flex-wrap gap-2">
+        @for (category of topCategories(); track category._id) {
+          <span
+            class="px-4 py-2 rounded-xl bg-[#1c2a37] border border-white/10 text-neutral-200 text-sm font-bold"
+          >
+            {{ category.name }}
+          </span>
+        } @empty {
+          <p class="text-neutral-400">No categories found yet.</p>
+        }
+      </div>
+    }
+  </section>
+
+  <section>
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-2xl font-black">Featured Products</h2>
+      <a
+        routerLink="/products"
+        class="app-btn app-btn-secondary !px-3 !py-2 !text-[11px]"
+      >
+        View All
+      </a>
+    </div>
+
+    @if (loading()) {
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        @for (_ of [1, 2, 3, 4]; track $index) {
+          <div class="bg-[#1c2a37] rounded-3xl p-4 border border-white/5 shadow-2xl">
+            <div class="aspect-square rounded-2xl bg-white/10 animate-pulse mb-4"></div>
+            <div class="h-4 w-2/3 rounded bg-white/10 animate-pulse mb-2"></div>
+            <div class="h-3 w-1/2 rounded bg-white/10 animate-pulse"></div>
+          </div>
+        }
+      </div>
+    } @else {
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        @for (product of featuredProducts(); track product._id) {
+          <div class="bg-[#1c2a37] rounded-3xl p-4 border border-white/5 shadow-2xl">
+            <div class="aspect-square rounded-2xl bg-neutral-900 overflow-hidden mb-4">
+              <img
+                [src]="product.image"
+                [alt]="product.title"
+                class="w-full h-full object-cover opacity-90 hover:scale-105 transition-transform duration-500"
+              />
+            </div>
+            <h3 class="text-white font-black truncate">{{ product.title }}</h3>
+            <p class="text-yellow-400 font-black mt-1">{{ product.price | currency: 'EGP ' }}</p>
+          </div>
+        } @empty {
+          <p class="text-neutral-400">No products found yet.</p>
+        }
+      </div>
+    }
+  </section>
+</div>

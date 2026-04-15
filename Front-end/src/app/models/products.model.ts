@@ -3,7 +3,16 @@ export interface Product {
   title: string;
   description: string;
   price: number;
+  category: string | { _id: string; name?: string };
+  image?: string;
+  inStock: 'yes' | 'no';
+}
+
+export interface CreateProductPayload {
+  title: string;
+  description: string;
+  price: number;
   category: string;
   image?: string;
-  stock: number;
+  inStock: 'yes' | 'no';
 }

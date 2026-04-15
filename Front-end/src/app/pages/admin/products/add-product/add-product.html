@@ -46,14 +46,55 @@
       <label class="label">
         <span class="label-text font-semibold">Category</span>
       </label>
+      <select
+        formControlName="category"
+        class="select select-bordered w-full"
+        [class.select-error]="productForm.get('category')?.invalid && productForm.get('category')?.touched"
+      >
+        <option value="" disabled>Select category</option>
+        @for (category of categories(); track category._id) {
+          <option [value]="category._id">{{ category.name }}</option>
+        }
+      </select>
+      @if (categoriesLoading()) {
+        <span class="text-xs text-neutral-500 mt-2">Loading categories...</span>
+      }
+      @if (categoryError()) {
+        <span class="text-xs text-red-500 mt-2">{{ categoryError() }}</span>
+      }
+    </div>
+  </div>
+
+  <div class="form-control border border-base-300 rounded-lg p-4">
+    <label class="label">
+      <span class="label-text font-semibold">Create New Category</span>
+    </label>
+    <div [formGroup]="newCategoryForm" class="flex items-center gap-2">
       <input
         type="text"
-        formControlName="category"
-        placeholder="Electronics"
+        formControlName="name"
+        placeholder="e.g. Accessories"
         class="input input-bordered w-full"
-        [class.input-error]="productForm.get('category')?.invalid && productForm.get('category')?.touched"
       />
+      <button
+        type="button"
+        (click)="onCreateCategory()"
+        [disabled]="creatingCategory()"
+        class="btn btn-outline btn-primary"
+      >
+        @if (creatingCategory()) {
+          Creating...
+        } @else {
+          Add
+        }
+      </button>
     </div>
+    @if (creatingCategoryError()) {
+      <span class="text-xs text-red-500 mt-2">{{ creatingCategoryError() }}</span>
+    }
+    @if (creatingCategorySuccess()) {
+      <span class="text-xs text-green-600 mt-2">{{ creatingCategorySuccess() }}</span>
+    }
   </div>
 
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -69,14 +110,17 @@
 
     <div class="form-control">
       <label class="label">
-        <span class="label-text font-semibold">Product Image URL</span>
+        <span class="label-text font-semibold">Product Image</span>
       </label>
       <input
-        type="text"
-        formControlName="image"
-        placeholder="https://example.com/image.jpg"
-        class="input input-bordered w-full"
+        type="file"
+        accept="image/*"
+        (change)="onImageSelected($event)"
+        class="file-input file-input-bordered w-full"
       />
+      @if (selectedImageFile()) {
+        <span class="text-xs text-neutral-500 mt-2">Selected: {{ selectedImageFile()?.name }}</span>
+      }
     </div>
   </div>
 

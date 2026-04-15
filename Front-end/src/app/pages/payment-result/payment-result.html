@@ -1,0 +1,26 @@
+<div class="payment-result-page">
+  <div class="payment-result-card">
+    <h1>Payment Status</h1>
+
+    @if (loading()) {
+      <p class="pending">Checking payment confirmation...</p>
+    } @else if (error()) {
+      <p class="error">{{ error() }}</p>
+    } @else if (status() === 'paid') {
+      <p class="success">Payment confirmed successfully.</p>
+    } @else if (status() === 'failed') {
+      <p class="error">Payment was not successful.</p>
+    } @else {
+      <p class="pending">Payment is still pending...</p>
+    }
+
+    @if (merchantOrderId()) {
+      <p class="merchant-id">Order: {{ merchantOrderId() }}</p>
+    }
+
+    <div class="actions">
+      <button type="button" (click)="goHome()">Home</button>
+      <button type="button" (click)="goCart()">Back to Cart</button>
+    </div>
+  </div>
+</div>

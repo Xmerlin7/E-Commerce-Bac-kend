@@ -1,0 +1,62 @@
+<div class="orders-page">
+  <div class="orders-card">
+    <div class="orders-header">
+      <h1>My Orders</h1>
+      <button type="button" (click)="fetchOrders()">Refresh</button>
+    </div>
+
+    @if (loading()) {
+      <p class="pending">Loading orders...</p>
+    } @else if (error()) {
+      <p class="error">{{ error() }}</p>
+    } @else if (orders().length === 0) {
+      <p class="muted">No orders yet.</p>
+    } @else {
+      <div class="orders-list">
+        @for (order of orders(); track order.id) {
+          <div class="order-item">
+            <div class="order-top">
+              <div>
+                <p class="order-title">Order</p>
+                <p class="value mono">{{ order.merchantOrderId }}</p>
+              </div>
+              <span
+                class="status-badge"
+                [class.status-paid]="order.status === 'paid'"
+                [class.status-failed]="order.status === 'failed'"
+                [class.status-pending]="order.status === 'pending'"
+              >
+                @if (order.status === 'paid') {
+                  ✓ Paid
+                } @else if (order.status === 'failed') {
+                  ✕ Failed
+                } @else {
+                  ⏳ Pending
+                }
+              </span>
+            </div>
+
+            <div class="row">
+              <span class="label">Total</span>
+              <span class="value amount">{{ formatAmount(order.amountCents) }} {{ order.currency }}</span>
+            </div>
+            <div class="row">
+              <span class="label">Created</span>
+              <span class="value">{{ order.createdAt | date: 'medium' }}</span>
+            </div>
+            <div class="row">
+              <span class="label">Last Update</span>
+              <span class="value">{{ order.updatedAt | date: 'medium' }}</span>
+            </div>
+            <div class="row">
+              <span class="label">Paid At</span>
+              <span class="value">
+                {{ order.paidAt ? (order.paidAt | date: 'medium') : 'Not paid yet' }}
+              </span>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>

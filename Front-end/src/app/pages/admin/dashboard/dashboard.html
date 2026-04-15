@@ -1,1 +1,162 @@
-<p>dashboard works!</p>
+<section class="space-y-6 text-white">
+  <div class="flex items-center justify-between gap-4">
+    <div>
+      <h1 class="text-3xl font-black tracking-tight">Admin Dashboard</h1>
+      <p class="text-sm text-neutral-400 mt-1">Overview of users, products, and categories.</p>
+    </div>
+    <button
+      type="button"
+      class="app-btn app-btn-secondary !px-5 !py-2 !text-[11px]"
+      (click)="loadDashboard()"
+    >
+      Refresh
+    </button>
+  </div>
+
+  @if (loading()) {
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+      @for (_ of [1, 2, 3, 4]; track $index) {
+        <div class="bg-[#1c2a37] rounded-3xl p-5 border border-white/5 shadow-2xl">
+          <div class="card-body">
+            <div class="h-4 w-24 rounded bg-white/10 animate-pulse"></div>
+            <div class="h-8 w-20 mt-3 rounded bg-white/10 animate-pulse"></div>
+          </div>
+        </div>
+      }
+    </div>
+  } @else {
+    @if (error()) {
+      <div class="mb-6 p-4 rounded-2xl border border-red-500/20 bg-red-500/10 text-red-200 font-bold">
+        <span>{{ error() }}</span>
+      </div>
+    }
+
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+      <div class="bg-[#1c2a37] rounded-3xl p-5 border border-white/5 shadow-2xl">
+        <div class="card-body">
+          <p class="text-sm text-neutral-400 font-bold">Users</p>
+          <h2 class="text-3xl font-black text-yellow-400">{{ usersCount() }}</h2>
+        </div>
+      </div>
+
+      <div class="bg-[#1c2a37] rounded-3xl p-5 border border-white/5 shadow-2xl">
+        <div class="card-body">
+          <p class="text-sm text-neutral-400 font-bold">Products</p>
+          <h2 class="text-3xl font-black text-yellow-400">{{ productsCount() }}</h2>
+        </div>
+      </div>
+
+      <div class="bg-[#1c2a37] rounded-3xl p-5 border border-white/5 shadow-2xl">
+        <div class="card-body">
+          <p class="text-sm text-neutral-400 font-bold">Categories</p>
+          <h2 class="text-3xl font-black text-yellow-400">{{ categoriesCount() }}</h2>
+        </div>
+      </div>
+
+      <div class="bg-[#1c2a37] rounded-3xl p-5 border border-white/5 shadow-2xl">
+        <div class="card-body">
+          <p class="text-sm text-neutral-400 font-bold">Inventory Value</p>
+          <h2 class="text-3xl font-black text-yellow-400">{{ totalInventoryValue() | currency: 'EGP ' }}</h2>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-4">
+      <div class="xl:col-span-2 bg-[#1c2a37] rounded-3xl p-5 border border-white/5 shadow-2xl">
+        <div class="card-body">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xl font-black">Latest Products</h3>
+            <a
+              routerLink="/admin/products"
+              class="app-btn app-btn-secondary !px-3 !py-1 !text-[11px]"
+            >
+              View all
+            </a>
+          </div>
+
+          @if (latestProducts().length === 0) {
+            <p class="text-sm text-neutral-400">No products found.</p>
+          } @else {
+            <div class="overflow-x-auto">
+              <table class="table text-neutral-200">
+                <thead>
+                  <tr>
+                    <th class="text-neutral-400">Title</th>
+                    <th class="text-neutral-400">Category</th>
+                    <th class="text-neutral-400">Price</th>
+                    <th class="text-neutral-400">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (product of latestProducts(); track product._id) {
+                    <tr class="border-b border-white/5">
+                      <td>{{ product.title }}</td>
+                      <td>
+                        @if (typeof product.category === 'string') {
+                          {{ product.category }}
+                        } @else {
+                          {{ product.category?.name || 'N/A' }}
+                        }
+                      </td>
+                      <td>{{ product.price | currency: 'EGP ' }}</td>
+                      <td>
+                        <span
+                          class="px-2 py-1 rounded-lg text-[11px] font-black uppercase"
+                          [class.bg-yellow-400]="product.inStock === 'yes'"
+                          [class.text-black]="product.inStock === 'yes'"
+                          [class.bg-red-500]="product.inStock === 'no'"
+                          [class.text-white]="product.inStock === 'no'"
+                        >
+                          {{ product.inStock === 'yes' ? 'In stock' : 'Out of stock' }}
+                        </span>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="bg-[#1c2a37] rounded-3xl p-5 border border-white/5 shadow-2xl">
+        <div class="card-body">
+          <h3 class="text-xl font-black">Stock Summary</h3>
+          <div class="space-y-2 text-sm">
+            <div class="flex justify-between">
+              <span class="text-neutral-400">In stock</span>
+              <span class="font-black text-yellow-400">{{ inStockCount() }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-neutral-400">Out of stock</span>
+              <span class="font-black text-red-400">{{ outOfStockCount() }}</span>
+            </div>
+          </div>
+
+          <div class="my-4 border-b border-white/5"></div>
+
+          <div class="space-y-2">
+            <a
+              routerLink="/admin/products/add"
+              class="w-full app-btn app-btn-primary"
+            >
+              Add Product
+            </a>
+            <a
+              routerLink="/admin/users/add"
+              class="w-full app-btn app-btn-secondary"
+            >
+              Add User
+            </a>
+            <a
+              routerLink="/admin/products"
+              class="w-full app-btn app-btn-neutral"
+            >
+              Manage Products
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</section>

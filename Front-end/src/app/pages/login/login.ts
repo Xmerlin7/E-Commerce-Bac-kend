@@ -15,6 +15,7 @@ export class LoginComponent {
   private cdr = inject(ChangeDetectorRef);
 
   conflictMessage = signal<string | null>(null);
+  errorMessage = signal<string | null>(null);
   loginForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]],
@@ -24,6 +25,7 @@ export class LoginComponent {
     const credentials = this.loginForm.getRawValue();
 
     this.conflictMessage.set(null);
+    this.errorMessage.set(null);
     this.cdr.detectChanges();
 
     this.authService.login({ ...credentials, forceLogin }).subscribe({
@@ -35,9 +37,25 @@ export class LoginComponent {
           this.conflictMessage.set(
             err?.error?.message || 'You are already logged in on another device.',
           );
+          this.errorMessage.set(null);
           this.cdr.detectChanges();
           return;
         }
+
+        // Prefer backend error message (ApiError + global error handler)
+        const serverMessage = err?.error?.message;
+        const fallbackMessage =
+          err?.status === 0
+            ? 'Network error. Please check your connection and try again.'
+            : 'Login failed. Please try again.';
+
+        this.errorMessage.set(
+          Array.isArray(serverMessage)
+            ? serverMessage.join(', ')
+            : (serverMessage ?? fallbackMessage),
+        );
+        this.conflictMessage.set(null);
+        this.cdr.detectChanges();
 
         console.error('Login Failed:', err);
       },

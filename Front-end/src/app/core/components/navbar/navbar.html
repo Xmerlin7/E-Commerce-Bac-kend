@@ -1,24 +1,48 @@
-<div class="navbar bg-base-100 shadow-md px-8">
-  <div class="flex-1">
-    <a routerLink="/" class="btn btn-ghost text-xl font-bold text-primary"> ShopWave 🌊 </a>
-  </div>
+<div class="navbar-wrap">
+  <div class="navbar-inner">
+    <a routerLink="/" class="brand">ShopWave <span>🌊</span></a>
 
-  <div class="flex-none">
-    <ul class="menu menu-horizontal px-1 gap-4 items-center">
-      <li><a routerLink="/home" routerLinkActive="active" class="font-medium">Home</a></li>
-      <li><a routerLink="/products" routerLinkActive="active" class="font-medium">Products</a></li>
+    <ul class="nav-links">
+      <li>
+        <a routerLink="/home" routerLinkActive="nav-active" class="nav-link">Home</a>
+      </li>
+      <li>
+        <a routerLink="/products" routerLinkActive="nav-active" class="nav-link">Products</a>
+      </li>
 
-      @if (!authService.currentUser()) {
-        <li><a routerLink="/login" class="btn btn-outline btn-primary btn-sm px-6">Login</a></li>
+      @if (isAuthenticated()) {
         <li>
-          <a routerLink="/register" class="btn btn-outline btn-accent btn-sm px-6">Register</a>
+          <a routerLink="/orders" routerLinkActive="nav-active" class="nav-link">Orders</a>
+        </li>
+        <li>
+          <a routerLink="/cart" routerLinkActive="nav-active" class="nav-link cart-link" title="Cart">
+            <span class="cart-icon" aria-hidden="true">🛒</span>
+            @if (cartItemsCount() > 0) {
+              <span class="cart-count">{{ cartItemsCount() }}</span>
+            }
+          </a>
         </li>
       }
-      @if (authService.currentUser()) {
+
+      @if (isAdmin()) {
         <li>
-          <button (click)="onLogoutClick()" class="btn btn-error btn-sm text-white">Logout</button>
+          <a routerLink="/admin" routerLinkActive="nav-active" class="nav-link">Admin</a>
         </li>
-        <li class="text-primary font-bold">Welcome, {{ authService.currentUser()?.name }}</li>
+      }
+
+      @if (!isAuthenticated()) {
+        <li><a routerLink="/login" class="nav-btn nav-btn-secondary">Login</a></li>
+        <li>
+          <a routerLink="/register" class="nav-btn nav-btn-primary">Register</a>
+        </li>
+      }
+      @if (isAuthenticated()) {
+        @if (authService.getCurrentUserName()) {
+          <li class="welcome-badge">Welcome, {{ authService.getCurrentUserName() }}</li>
+        }
+        <li>
+          <button (click)="onLogoutClick()" class="nav-btn nav-btn-danger">Logout</button>
+        </li>
       }
     </ul>
   </div>

@@ -1,0 +1,114 @@
+<div class="p-8 app-page-bg min-h-screen font-sans" dir="rtl">
+  <div class="flex justify-between items-center mb-10 border-b border-yellow-500/20 pb-6">
+    <div class="flex items-center gap-4">
+      <div class="w-2 h-10 bg-yellow-400 rounded-full shadow-[0_0_15px_rgba(250,204,21,0.5)]"></div>
+      <h1 class="text-3xl font-black text-white tracking-tight">سلة المشتريات</h1>
+    </div>
+
+    <a routerLink="/products" class="app-btn app-btn-secondary !px-5 !py-2 !text-[11px]">
+      كمل تسوق
+    </a>
+  </div>
+
+  @if (errorMessage()) {
+    <div class="mb-6 p-4 rounded-2xl border border-red-500/20 bg-red-500/10 text-red-200 font-bold">
+      {{ errorMessage() }}
+    </div>
+  }
+
+  @if (loading()) {
+    <div class="flex flex-col items-center justify-center py-32">
+      <div
+        class="w-12 h-12 border-2 border-yellow-400/20 border-t-yellow-400 rounded-full animate-spin"
+      ></div>
+      <p class="mt-6 text-neutral-500 font-bold animate-pulse">بنحمّل السلة..</p>
+    </div>
+  } @else {
+    @if (items().length === 0) {
+      <div class="flex flex-col items-center justify-center py-32">
+        <p class="text-neutral-400 font-bold">السلة فاضية</p>
+      </div>
+    } @else {
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="lg:col-span-2 space-y-4">
+          @for (item of items(); track item.product._id) {
+            <div class="bg-[#1c2a37] rounded-3xl p-4 border border-white/5 shadow-2xl">
+              <div class="flex items-center gap-4">
+                <div class="w-20 h-20 rounded-2xl bg-neutral-900 overflow-hidden shrink-0">
+                  <img
+                    [src]="item.product.image"
+                    [alt]="item.product.title"
+                    class="w-full h-full object-cover opacity-90"
+                  />
+                </div>
+
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center justify-between gap-4">
+                    <h3 class="text-white font-black truncate">{{ item.product.title }}</h3>
+                    <span class="text-yellow-400 font-black">{{ item.product.price }} EGP</span>
+                  </div>
+
+                  <div class="mt-3 flex items-center justify-between gap-4">
+                    <div class="flex items-center gap-2">
+                      <button
+                        type="button"
+                        (click)="onIncrease(item)"
+                        [disabled]="pendingProductId() === item.product._id"
+                        class="w-10 h-10 rounded-xl bg-yellow-400 text-black font-black hover:bg-yellow-500 disabled:bg-yellow-400/50 transition-all"
+                      >
+                        +
+                      </button>
+
+                      <div class="w-12 text-center text-white font-black">
+                        {{ item.quantity }}
+                      </div>
+
+                      <button
+                        type="button"
+                        (click)="onDecrease(item)"
+                        [disabled]="pendingProductId() === item.product._id"
+                        class="w-10 h-10 rounded-xl bg-yellow-400/10 text-yellow-300 font-black hover:bg-yellow-400 hover:text-black disabled:opacity-40 transition-all border border-yellow-400/20"
+                      >
+                        -
+                      </button>
+
+                      <button
+                        type="button"
+                        (click)="onRemove(item)"
+                        [disabled]="pendingProductId() === item.product._id"
+                        class="px-3 h-10 rounded-xl bg-red-500/10 text-red-300 font-black hover:bg-red-500 hover:text-white disabled:opacity-40 transition-all border border-red-500/20 text-xs uppercase"
+                      >
+                        Remove
+                      </button>
+                    </div>
+
+                    <span class="text-neutral-400 font-bold text-sm">
+                      الإجمالي:
+                      <span class="text-white">{{ item.product.price * item.quantity }} EGP</span>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="bg-[#1c2a37] rounded-3xl p-5 border border-white/5 shadow-2xl h-fit">
+          <div class="flex items-center justify-between border-b border-white/5 pb-4 mb-4">
+            <span class="text-neutral-400 font-bold">المجموع</span>
+            <span class="text-yellow-400 font-black text-lg">{{ total() }} EGP</span>
+          </div>
+
+          <button
+            type="button"
+            (click)="onCheckoutClick()"
+            [disabled]="loading()"
+            class="w-full app-btn app-btn-primary"
+          >
+            Checkout
+          </button>
+        </div>
+      </div>
+    }
+  }
+</div>

@@ -1,52 +1,85 @@
-<div class="hero hero-content min-h-screen">
-  <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-4">
-    <label class="label"><span class="label-text">Name</span></label>
-    <input formControlName="name" type="text" placeholder="User Name" class="input input-accent" />
-    <label class="label"><span class="label-text">Email</span></label>
-    <input
-      formControlName="email"
-      type="email"
-      placeholder="user@dev.com"
-      class="input input-accent"
-    />
-    <label class="label"><span class="label-text">Password</span></label>
-    <input
-      formControlName="password"
-      type="password"
-      placeholder="Password"
-      class="input input-accent"
-    />
-    <label class="label"><span class="label-text">Confirm Password</span></label>
-    <input
-      formControlName="confirmPassword"
-      type="password"
-      placeholder="Password"
-      class="input input-accent"
-    />
-    @if (
-      registerForm.hasError('passwordMismatch') && registerForm.get('confirmPassword')?.touched
-    ) {
-      <p class="badge badge-error">Password not matched</p>
-    }
-    @if (errorMessage) {
-      <div class="alert alert-warning shadow-lg">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="stroke-current shrink-0 h-6 w-6"
-          fill="none"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-          />
-        </svg>
-        <span>{{ errorMessage }}</span>
+<div class="min-h-screen app-page-bg flex items-center justify-center p-6">
+  <div class="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+    <div class="text-center lg:text-left">
+      <div class="inline-flex items-center gap-3 mb-5">
+        <span class="w-2 h-10 bg-yellow-400 rounded-full shadow-[0_0_15px_rgba(250,204,21,0.5)]"></span>
+        <h1 class="text-4xl md:text-5xl font-black text-white tracking-tight">إنشاء حساب</h1>
       </div>
-    }
+      <p class="text-neutral-300 leading-relaxed">
+        اعمل حساب جديد في <span class="text-yellow-400 font-bold">ShopWave</span><br />
+        وابدأ التسوق أو إدارة النظام حسب صلاحيتك.
+      </p>
+    </div>
 
-    <button type="submit" [disabled]="registerForm.invalid" class="btn btn-accent">Register</button>
-  </form>
+    <div class="bg-[#1c2a37] rounded-3xl border border-white/5 shadow-2xl p-6 md:p-8">
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="space-y-4" dir="ltr">
+        <div>
+          <label class="block text-sm text-neutral-300 mb-2 font-bold">Name</label>
+          <input
+            formControlName="name"
+            type="text"
+            placeholder="User Name"
+            class="w-full px-4 py-3 rounded-xl bg-[#111827] border border-white/10 text-white placeholder:text-neutral-500 focus:outline-none focus:border-yellow-400/50"
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm text-neutral-300 mb-2 font-bold">Email</label>
+          <input
+            formControlName="email"
+            type="email"
+            placeholder="user@dev.com"
+            class="w-full px-4 py-3 rounded-xl bg-[#111827] border border-white/10 text-white placeholder:text-neutral-500 focus:outline-none focus:border-yellow-400/50"
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm text-neutral-300 mb-2 font-bold">Password</label>
+          <input
+            formControlName="password"
+            type="password"
+            placeholder="Password"
+            class="w-full px-4 py-3 rounded-xl bg-[#111827] border border-white/10 text-white placeholder:text-neutral-500 focus:outline-none focus:border-yellow-400/50"
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm text-neutral-300 mb-2 font-bold">Confirm Password</label>
+          <input
+            formControlName="confirmPassword"
+            type="password"
+            placeholder="Password"
+            class="w-full px-4 py-3 rounded-xl bg-[#111827] border border-white/10 text-white placeholder:text-neutral-500 focus:outline-none focus:border-yellow-400/50"
+          />
+        </div>
+
+        @if (
+          registerForm.hasError('passwordMismatch') && registerForm.get('confirmPassword')?.touched
+        ) {
+          <p class="p-3 rounded-xl border border-red-500/20 bg-red-500/10 text-red-200 font-semibold text-sm">
+            Passwords do not match
+          </p>
+        }
+
+        @if (errorMessage) {
+          <div class="p-4 rounded-2xl border border-red-500/20 bg-red-500/10 text-red-200 font-semibold text-sm">
+            {{ errorMessage }}
+          </div>
+        }
+
+        <div class="flex items-center justify-between gap-3 pt-2">
+          <a routerLink="/login" class="text-[11px] text-yellow-300 hover:text-yellow-400 font-bold">
+            Already have an account? Login
+          </a>
+          <button
+            type="submit"
+            [disabled]="registerForm.invalid"
+            class="app-btn app-btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Register
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
 </div>
