@@ -8,6 +8,7 @@ import productRouter from "./routes/product.route.js";
 import userRouter from "./routes/user.route.js";
 import cartRouter from "./routes/cart.route.js";
 import accRouter from "./routes/account.route.js";
+import paymentRouter from "./routes/payment.route.js";
 import globalErrorHandler from "./middlewares/errors/errorHandler.js";
 import notFound from "./middlewares/errors/notFound.js";
 
@@ -22,7 +23,13 @@ app.use(
 		credentials: true,
 	}),
 );
-app.use(express.json());
+app.use(
+  express.json({
+    verify: (req, res, buf) => {
+      req.rawBody = buf.toString("utf8");
+    },
+  }),
+);
 app.use(cookieParser());
 app.use("/uploads", express.static(path.resolve("uploads")));
 
@@ -31,6 +38,7 @@ app.use("/api/users", userRouter);
 app.use("/api/category", categoryRouter);
 app.use("/api/products", productRouter);
 app.use("/api/carts", cartRouter);
+app.use("/api/payments", paymentRouter);
 
 // Fall Back Router
 app.use("/", notFound);
