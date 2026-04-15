@@ -1,6 +1,4 @@
-# E-Commerce API Documentation
-
-**Project:** Day 4 (Node.js + Express + MongoDB)
+# ShopWave Backend API Documentation
 
 ## Base URL
 
@@ -10,21 +8,39 @@
 ## Content Type
 
 - Request body: `Content-Type: application/json`
-- Responses: JSON
+- Responses: JSON, unless otherwise noted
 
-## Environment
+## Environment Variables
 
-- `PORT` (default in repo: `8080`)
-- `DB_URI` (default in repo: `mongodb://localhost:27017/ecommerce`)
-- `ACCESS_TOKEN_SECRET` (required for JWT access tokens)
-- `REFRESH_TOKEN_SECRET` (required for JWT refresh tokens)
+Required application settings:
+
+- `PORT` - server port, default `8080`
+- `MONGODB_URI` - MongoDB connection string
+- `ACCESS_TOKEN_SECRET` - JWT access-token secret
+- `REFRESH_TOKEN_SECRET` - JWT refresh-token secret
+
+Paymob settings:
+
+- `PAYMOB_SECRET_KEY` - used for Paymob Intention API requests
+- `PAYMOB_PUBLIC_KEY` - used to build the unified checkout URL
+- `PAYMOB_INTEGRATION_ID` - fallback payment method id if none is sent in the request body
+- `PAYMOB_BASE_URL` - default `https://accept.paymob.com/api`
+- `PAYMOB_INTENTION_BASE_URL` - default `https://accept.paymob.com`
+- `PAYMOB_PORTAL_BASE_URL` - default `https://portal.paymob.com`
+- `PAYMOB_UNIFIED_CHECKOUT_BASE_URL` - optional explicit unified checkout host override
+- `PAYMOB_REDIRECTION_URL` - browser return URL Paymob should redirect to after payment
+- `FRONTEND_PAYMENT_RESULT_URL` - frontend page the backend return endpoint redirects to
+- `PAYMENT_WEBHOOK_SECRET` - used to verify webhook signatures
+- `PAYMENT_PROVIDER_S2S_VERIFY_ENABLED` - optional server-to-server verification toggle
+- `PAYMOB_VERIFY_TRANSACTION_ENDPOINT` - optional verification endpoint override
+- `PAYMOB_API_KEY` - optional legacy fallback for verification compatibility
 
 ## Auth Overview
 
-This API uses **JWT Bearer tokens** for protected routes.
+This API uses JWT Bearer tokens for protected routes.
 
 - Send header: `Authorization: Bearer <accessToken>`
-- Login also sets an HttpOnly `refreshToken` cookie (used by refresh/logout)
+- Login also sets an HttpOnly `refreshToken` cookie
 
 ## Standard Response Shape
 
@@ -37,68 +53,57 @@ Most endpoints respond like:
 }
 ```
 
-Cart endpoints currently use `Message` (capital M) in some responses.
+Note: cart endpoints currently return `Message` with a capital `M` in some responses.
 
 ## Errors
 
 - Validation errors: `400`
-  - Response:
-
-```json
-{
-  "message": "<validation messages>"
-}
-```
-
-Note: current validation middleware returns `"Validation Error"` as the message.
-
-- Duplicate key errors (MongoDB `11000`): `400`
-  - Response is an array of strings like:
-
-```json
-["email test@example.com already exists"]
-```
-
+  - Response body usually contains a validation message such as `Validation Error`
+- Duplicate key errors from MongoDB: `400`
+  - Response is commonly an array of strings
+- Authentication/authorization errors: `401` or `403`
 - Unhandled errors: `500`
 
-```json
-{
-  "message": "Internal Server Error!"
-}
-```
+## Data Models
 
----
+### User
 
-## Data Models (MongoDB)
+- `name` - string, required
+- `email` - string, required, unique
+- `password` - string, required, stored hashed
+- `role` - `user` | `admin`, default `user`
 
-## User
+### Category
 
-Fields (see `models/user.js`):
+- `name` - string, required, unique
 
-- `name` (string, required, min 3, max 50)
-- `email` (string, required, unique)
-- `password` (string, required, min 6) — stored hashed
-- `role` (`user` | `admin`, default `user`)
+### Product
 
-## Category
+- `title` - string, required
+- `description` - string, required
+- `image` - string, optional, defaults to a product image URL
+- `price` - number, required, min 0
+- `inStock` - `yes` | `no`, default `yes`
+- `category` - ObjectId reference to `Category`, required
 
-- `name` (string, required, unique)
+### Cart
 
-## Product
-
-- `name` (string, required, unique)
-- `price` (number, required, min 0)
-- `inStock` (`yes` | `no`, default `yes`)
-- `category` (ObjectId -> Category, required)
-
-## Cart
-
-- `user` (ObjectId -> User, required)
+- `user` - ObjectId reference to `User`, required
 - `products[]`
-  - `product` (ObjectId -> Product, required)
-  - `quantity` (number, min 1, default 1)
+  - `product` - ObjectId reference to `Product`, required
+  - `quantity` - number, min 1, default 1
 
----
+### PaymentTransaction
+
+- `user` - ObjectId reference to `User`
+- `merchantOrderId` - string, unique
+- `providerOrderId` - string
+- `providerTransactionId` - string
+- `amountCents` - number
+- `currency` - string
+- `status` - `pending` | `paid` | `failed`
+- `paidAt` - date
+- `webhookMeta` - raw provider payload snapshot
 
 ## Endpoints
 
@@ -136,22 +141,34 @@ Request body:
 
 Response: `200`
 
-- Sets an HttpOnly cookie: `refreshToken`
-- Returns JSON including an access token:
+Response body includes:
 
 ```json
 {
   "message": "Hi Merlin U loggedIn successfully!",
-  "token": "<accessToken>"
+  "token": "<accessToken>",
+  "user": {
+    "_id": "...",
+    "name": "Merlin",
+    "email": "merlin@example.com",
+    "role": "user"
+  }
 }
 ```
 
-### Me (current user)
+### Current user
 
 - **GET** `/api/me`
 - **Auth required:** `Authorization: Bearer <accessToken>`
 
 Response: `200`
+
+```json
+{
+  "message": "Retrieved Successfully!",
+  "data": ["Merlin", "user"]
+}
+```
 
 ### Refresh access token
 
@@ -163,7 +180,7 @@ Response: `200`
 ```json
 {
   "message": "U refreshed successfully!",
-  "data": "<newAccessToken>"
+  "accessToken": "<newAccessToken>"
 }
 ```
 
@@ -178,6 +195,19 @@ Response: `200`
 ## Users
 
 Auth: **Admin only**
+
+### Get all users
+
+- **GET** `/api/users`
+
+Response: `200`
+
+```json
+{
+  "message": "User retrieved successfully!",
+  "data": []
+}
+```
 
 ### Create user
 
@@ -196,55 +226,43 @@ Request body:
 
 Response: `200`
 
-```json
-{
-  "message": "User Created successfully!",
-  "data": {
-    "_id": "...",
-    "name": "Merlin",
-    "email": "merlin@example.com",
-    "role": "user",
-    "password": "<hashed>",
-    "createdAt": "...",
-    "updatedAt": "..."
-  }
-}
-```
+### Get user by id
 
-### Get all users
+- **GET** `/api/users/:id`
 
-- **GET** `/api/users`
+Response: `200`
+
+### Update user
+
+- **PUT** `/api/users/:id`
+
+Response: `200`
+
+### Delete user
+
+- **DELETE** `/api/users/:id`
+
+Response: `200`
+
+## Categories
+
+### Get all categories
+
+- **GET** `/api/category`
 
 Response: `200`
 
 ```json
 {
-  "message": "User retrieved successfully!",
-  "data": [
-    {
-      "_id": "...",
-      "name": "Merlin",
-      "email": "merlin@example.com",
-      "role": "user",
-      "createdAt": "...",
-      "updatedAt": "..."
-    }
-  ]
+  "message": "Retrieved Successfully",
+  "data": []
 }
 ```
-
----
-
-## Categories
-
-Auth:
-
-- `POST /api/category`: **Admin only**
-- `GET /api/category/:id/products`: public
 
 ### Create category
 
 - **POST** `/api/category`
+- **Auth required:** admin only
 
 Request body:
 
@@ -260,72 +278,66 @@ Response: `201`
 {
   "message": "Category Created Successfully!",
   "data": {
+    "id": "<CategoryObjectId>",
     "name": "Electronics"
   }
 }
 ```
 
----
+### Get products by category
+
+- **GET** `/api/category/:id/products`
+
+Response: `200`
+
+```json
+{
+  "message": "Retrieved Successfully",
+  "data": []
+}
+```
 
 ## Products
 
-Auth:
+### Get all products
 
-- `POST /api/products`: **Admin only**
-- `GET /api/products` and `GET /api/products/:id`: public
+- **GET** `/api/products?page=1&limit=10`
+
+Response: `200`
+
+```json
+{
+  "data": [],
+  "total": 0,
+  "page": 1,
+  "totalPages": 0
+}
+```
 
 ### Create product
 
 - **POST** `/api/products`
+- **Auth required:** admin only
 
-Request body (note: the service expects `categoryID`):
+Request body:
 
 ```json
 {
-  "name": "iPhone 15",
+  "title": "iPhone 15",
+  "description": "Latest Apple phone",
   "price": 999,
   "inStock": "yes",
-  "categoryID": "<CategoryObjectId>"
+  "category": "<CategoryObjectId>",
+  "image": "https://example.com/image.jpg"
 }
 ```
+
+Notes:
+
+- The upload middleware also accepts `multipart/form-data` with an `imageFile` field.
+- If no uploaded file is present, the backend uses the `image` field from the request body.
 
 Response: `201`
-
-```json
-{
-  "message": "Category Created Successfully!",
-  "data": {
-    "name": "iPhone 15",
-    "price": 999,
-    "inStock": "yes",
-    "categoryID": "<CategoryObjectId>"
-  }
-}
-```
-
-### Get all products
-
-- **GET** `/api/products`
-
-Response: **currently** `201` (implementation detail)
-
-```json
-{
-  "message": "Got all Successfully!",
-  "data": [
-    {
-      "_id": "...",
-      "name": "iPhone 15",
-      "price": 999,
-      "inStock": "yes",
-      "category": {
-        "_id": "...",
-        "name": "Electronics"
-      }
-    }
-  ]
-}
-```
 
 ### Get product by id
 
@@ -333,16 +345,50 @@ Response: **currently** `201` (implementation detail)
 
 Response: `200`
 
----
+```json
+{
+  "message": "Got it Successfully!",
+  "data": {
+    "_id": "...",
+    "title": "iPhone 15",
+    "description": "Latest Apple phone",
+    "price": 999,
+    "inStock": "yes",
+    "category": {
+      "_id": "...",
+      "name": "Electronics"
+    }
+  }
+}
+```
+
+### Update product
+
+- **PUT** `/api/products/:id`
+- **Auth required:** admin only
+
+Response: `200`
+
+### Delete product
+
+- **DELETE** `/api/products/:id`
+- **Auth required:** admin only
+
+Response: `204`
 
 ## Carts
 
 All cart routes are scoped to a user id in the URL.
 
-Auth required for all cart routes.
-
+- **Auth required** for all cart routes
 - Admin can access any cart
-- Normal user can only access their own cart (the `:userId` must match the token `userId`)
+- Normal users can only access their own cart
+
+### Get cart
+
+- **GET** `/api/carts/user/:userId`
+
+Response: `200`
 
 ### Add to cart
 
@@ -358,6 +404,136 @@ Request body:
 ```
 
 Response: `201`
+
+### Update cart quantity
+
+- **PATCH** `/api/carts/user/:userId`
+
+Request body:
+
+```json
+{
+  "productId": "<ProductObjectId>",
+  "quantity": 3
+}
+```
+
+Response: `200`
+
+### Remove from cart
+
+- **DELETE** `/api/carts/user/:userId`
+
+Request body:
+
+```json
+{
+  "productId": "<ProductObjectId>"
+}
+```
+
+Response: `200`
+
+## Payments
+
+### Create Paymob checkout
+
+- **POST** `/api/payments/paymob/checkout`
+- **Auth required:** access token
+
+Request body:
+
+```json
+{
+  "amountCents": 27000,
+  "currency": "EGP",
+  "payment_methods": [5617734],
+  "billing_data": {
+    "first_name": "Merlin",
+    "last_name": "User",
+    "email": "merlin@example.com",
+    "phone_number": "+201000000000"
+  }
+}
+```
+
+Response: `201`
+
+```json
+{
+  "message": "Checkout URL created",
+  "clientSecret": "<paymob-client-secret>",
+  "checkoutUrl": "https://accept.paymob.com/unifiedcheckout/...",
+  "merchantOrderId": "sw-<timestamp>-<userId>"
+}
+```
+
+### Paymob webhook
+
+- **POST** `/api/payments/paymob/webhook`
+
+Notes:
+
+- The request must include a valid signature header.
+- Accepted signature headers: `x-paymob-signature` or `x-paymob-hmac`
+- The backend uses the raw request body for verification.
+
+Responses:
+
+- `200` when payment is confirmed or already processed
+- `202` when the webhook payload is valid but not successful
+- `401` when the signature is invalid
+
+### Paymob return redirect
+
+- **GET** `/api/payments/paymob/return`
+
+Notes:
+
+- Paymob should redirect the browser here after payment.
+- This endpoint redirects again to `FRONTEND_PAYMENT_RESULT_URL`.
+
+### Payment status
+
+- **GET** `/api/payments/paymob/status/:merchantOrderId`
+- **Auth required:** access token
+
+Response: `200`
+
+```json
+{
+  "merchantOrderId": "sw-...",
+  "status": "pending",
+  "paidAt": null,
+  "amountCents": 27000,
+  "currency": "EGP"
+}
+```
+
+### User payment history
+
+- **GET** `/api/payments/paymob/orders?limit=50`
+- **Auth required:** access token
+
+Response: `200`
+
+```json
+{
+  "count": 1,
+  "data": []
+}
+```
+
+## Validation Notes
+
+- Validation is handled by `express-validator` in the route layer.
+- Invalid input returns `400` with a validation message.
+- Route-specific validation files live in `middlewares/validations/`.
+
+## Testing
+
+- Use `api.http` for REST Client testing in VS Code.
+- Use `docs/api.md` as the canonical endpoint reference.
 
 ```json
 {
