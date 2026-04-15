@@ -1,62 +1,93 @@
-# Day 4 – E-Commerce API
+# ShopWave Backend
 
-Node.js (Express) + MongoDB (Mongoose) CRUD API for Users, Categories, Products, and Carts.
+Express + MongoDB API for ShopWave. The backend covers authentication, users, categories, products, carts, and Paymob payments.
 
-## Quickstart
+## Quick Start
 
-1. Install dependencies
+Install dependencies:
 
 ```bash
-npm i
+npm install
 ```
 
-1. Configure env
+Configure the environment in `.env`:
 
-The repo already includes a `.env` with defaults:
+```dotenv
+PORT=8080
+MONGODB_URI=mongodb://localhost:27017/ecommerce
+ACCESS_TOKEN_SECRET=your-access-token-secret
+REFRESH_TOKEN_SECRET=your-refresh-token-secret
 
-- `PORT=8080`
-- `DB_URI=mongodb://localhost:27017/ecommerce`
-- `ACCESS_TOKEN_SECRET=...` (required for auth)
-- `REFRESH_TOKEN_SECRET=...` (required for auth)
+PAYMOB_SECRET_KEY=your-paymob-secret-key
+PAYMOB_PUBLIC_KEY=your-paymob-public-key
+PAYMOB_INTEGRATION_ID=your-paymob-integration-id
+PAYMOB_BASE_URL=https://accept.paymob.com/api
+PAYMOB_INTENTION_BASE_URL=https://accept.paymob.com
+PAYMOB_PORTAL_BASE_URL=https://portal.paymob.com
+PAYMOB_REDIRECTION_URL=http://localhost:8080/api/payments/paymob/return
+FRONTEND_PAYMENT_RESULT_URL=http://localhost:4200/payment-result
+PAYMENT_WEBHOOK_SECRET=your-webhook-secret
+PAYMENT_PROVIDER_S2S_VERIFY_ENABLED=false
+PAYMOB_VERIFY_TRANSACTION_ENDPOINT=/acceptance/transactions/:id
+```
 
-1. Run
+Run the API:
 
 ```bash
 npm run dev
 ```
 
-Server runs on: `http://localhost:8080`
+Default backend URL:
 
-## Auth & Roles
+```text
+http://localhost:8080
+```
 
-- Login returns an **access token** (JWT). Send it on protected routes:
-  - `Authorization: Bearer <accessToken>`
-- Login also sets an HttpOnly cookie `refreshToken` used by:
-  - `POST /api/refresh`
-  - `POST /api/logout`
+## Features
 
-Role rules (current implementation):
+- JWT auth with access and refresh tokens
+- Role-based access control
+- Users, categories, and products CRUD
+- Cart management per user
+- Paymob unified checkout integration
+- Paymob webhook processing
+- Payment return redirect and payment status polling
 
-- Admin-only:
-  - `POST /api/category`
-  - `POST /api/products`
-  - `GET/POST /api/users`
-- Cart endpoints require auth; non-admin users can only access their own cart via `:userId`.
+## Project Layout
 
-## Validation
+- `app.js` - Express app setup and middleware
+- `server.js` - HTTP server bootstrap
+- `routes/` - API route definitions
+- `controllers/` - request handlers
+- `services/` - business logic and data access
+- `models/` - Mongoose schemas
+- `middlewares/` - auth, validation, error handling, uploads
+- `docs/api.md` - API reference
+- `api.http` - REST Client request examples
 
-Request validation uses `express-validator` and is wired in the route files.
+## Authentication
 
-- Validators live in `middlewares/validations/*.validators.js`
-- Handler is `middlewares/validations/validatorHandler.js`
-- On invalid input you’ll get `400` with message `Validation Error`
+- Login returns a JWT access token in the response body.
+- Login also sets an HttpOnly `refreshToken` cookie.
+- Protected routes use `Authorization: Bearer <accessToken>`.
 
-## Testing (VS Code)
+Role rules:
 
-Use the REST Client file to test all endpoints:
+- Admin-only routes include user management, category creation, product creation, updates, and deletes.
+- Cart and payment status routes require authentication.
 
-- `api.http`
+## Development Notes
 
-## API Documentation
+- Validation is implemented with `express-validator`.
+- Payment return handling requires `FRONTEND_PAYMENT_RESULT_URL`.
+- Paymob webhook verification requires `PAYMENT_WEBHOOK_SECRET`.
+- If you run the frontend on a different URL or port, update the Paymob redirect URLs accordingly.
 
-See: `docs/api.md`
+## Testing
+
+Use `api.http` in VS Code REST Client to exercise the backend endpoints.
+
+## Documentation
+
+- API reference: `docs/api.md`
+- Request examples: `api.http`
