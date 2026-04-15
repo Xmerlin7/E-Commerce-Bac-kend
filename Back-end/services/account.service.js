@@ -9,7 +9,6 @@ import RefreshTokenModel from "../models/tokens.js";
 export const getCurrentUser = async (req) => {
   const currentUserId = req.user.userId;
   const currentUser = await User.findById(currentUserId);
-  console.log(currentUser);
   return currentUser;
 };
 

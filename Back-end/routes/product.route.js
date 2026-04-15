@@ -9,6 +9,7 @@ import { Router } from "express";
 import authenticate from "../middlewares/auth/authenticate.middleware.js";
 import authorize from "../middlewares/auth/authorize.middleware.js";
 import validate from "../middlewares/validations/validatorHandler.js";
+import productImageUpload from "../middlewares/uploads/product-image-upload.middleware.js";
 import {
   createProductValidator,
   productIdParamValidator,
@@ -18,8 +19,9 @@ const router = Router();
 
 router.post(
   "/",
-  // authenticate,
-  // authorize("admin"),
+  authenticate,
+  authorize("admin"),
+  productImageUpload.single("imageFile"),
   createProductValidator,
   validate,
   createProduct,
@@ -28,6 +30,7 @@ router.get("/", getProducts);
 router.get("/:id", productIdParamValidator, validate, getProductByID);
 router.put(
   "/:id",
+  authenticate,
   productIdParamValidator,
   validate,
   authorize("admin"),
@@ -35,6 +38,7 @@ router.put(
 );
 router.delete(
   "/:id",
+  authenticate,
   productIdParamValidator,
   validate,
   authorize("admin"),
