@@ -1,5 +1,6 @@
 import {
   createCategory,
+  getCategories,
   getProductsByCategory,
 } from "../controllers/category.controller.js";
 import { Router } from "express";
@@ -13,9 +14,11 @@ import {
 
 const router = Router();
 
+router.get("/", getCategories);
 router.post(
   "/",
-
+  authenticate,
+  authorize("admin"),
   createCategoryValidator,
   validate,
   createCategory,

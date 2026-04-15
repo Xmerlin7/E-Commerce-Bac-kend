@@ -10,6 +10,9 @@ import { AddUserFormComponent } from './pages/admin/users/add-user/add-user';
 import { ProductsList } from './pages/admin/products/products-list/products-list';
 import { EditProduct } from './pages/admin/products/edit-product/edit-product';
 import { AddProduct } from './pages/admin/products/add-product/add-product';
+import { CartPage } from './pages/cart/cart';
+import { PaymentResultPage } from './pages/payment-result/payment-result';
+import { OrdersPage } from './pages/orders/orders';
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
 
@@ -17,6 +20,9 @@ export const routes: Routes = [
   { path: 'register', component: Register },
   { path: 'login', component: LoginComponent },
   { path: 'products', component: ProductsList },
+  { path: 'cart', component: CartPage },
+  { path: 'orders', component: OrdersPage },
+  { path: 'payment-result', component: PaymentResultPage },
   {
     path: 'admin',
     component: AdminLayoutComponent,
@@ -33,10 +39,10 @@ export const routes: Routes = [
       {
         path: 'products',
         children: [
-          { path: '', component: ProductsList },      // يفتح عند /admin/products
-          { path: 'add', component: AddProduct },     // يفتح عند /admin/products/add
-          { path: 'edit/:id', component: EditProduct } // يفتح عند /admin/products/edit/123
-        ]
+          { path: '', component: ProductsList }, // يفتح عند /admin/products
+          { path: 'add', component: AddProduct }, // يفتح عند /admin/products/add
+          { path: 'edit/:id', component: EditProduct }, // يفتح عند /admin/products/edit/123
+        ],
       },
     ],
   },

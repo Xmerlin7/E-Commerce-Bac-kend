@@ -25,6 +25,7 @@ export const add = async (userId, productId, quantity = 1) => {
       user: userId,
       products: [{ product: productId, quantity: parsedQuantity }],
     });
+    await cart.populate("products.product");
     return cart;
   }
 
@@ -39,6 +40,7 @@ export const add = async (userId, productId, quantity = 1) => {
   }
 
   await cart.save();
+  await cart.populate("products.product");
   return cart;
 };
 
@@ -57,5 +59,55 @@ export const del = async (userID, productId) => {
   );
 
   await cart.save();
+  await cart.populate("products.product");
+  return cart;
+};
+
+export const setQuantity = async (userId, productId, quantity) => {
+  if (!productId) {
+    const err = new Error("productId is required");
+    err.status = 400;
+    throw err;
+  }
+
+  const parsedQuantity = Number(quantity);
+  if (!Number.isFinite(parsedQuantity) || parsedQuantity < 1) {
+    const err = new Error("quantity must be a number >= 1");
+    err.status = 400;
+    throw err;
+  }
+
+  let cart = await cartModel.findOne({ user: userId });
+  if (!cart) {
+    cart = await cartModel.create({
+      user: userId,
+      products: [{ product: productId, quantity: parsedQuantity }],
+    });
+    await cart.populate("products.product");
+    return cart;
+  }
+
+  const productIndex = cart.products.findIndex(
+    (p) => p.product.toString() === productId.toString(),
+  );
+
+  if (productIndex === -1) {
+    cart.products.push({ product: productId, quantity: parsedQuantity });
+  } else {
+    cart.products[productIndex].quantity = parsedQuantity;
+  }
+
+  await cart.save();
+  await cart.populate("products.product");
+  return cart;
+};
+
+export const clear = async (userId) => {
+  const cart = await cartModel.findOne({ user: userId });
+  if (!cart) return null;
+
+  cart.products = [];
+  await cart.save();
+  await cart.populate("products.product");
   return cart;
 };

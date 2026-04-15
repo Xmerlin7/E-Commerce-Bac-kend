@@ -4,14 +4,15 @@ import Product from "../models/product.js";
 import ApiError from "../utils/ApiError.js";
 export const create = async (cat) => {
   const category = await Category.create({ name: cat.name });
-  return category._id
-
+  return category._id;
 };
+
+export const getAll = async () => {
+  return Category.find().sort({ name: 1 });
+};
+
 export const getByCategory = async (id) => {
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    if (!mongoose.Types.ObjectId.isValid(id))
-      throw new ApiError("Invalid ID", 400);
-  }
+  if (!mongoose.Types.ObjectId.isValid(id)) throw new ApiError("Invalid ID", 400);
   const categoryExists = await Category.findOne({ _id: id });
 
   if (!categoryExists) throw new ApiError("Category not found", 400);
